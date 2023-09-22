@@ -7,18 +7,10 @@ const resultURL = `${baseURL}?key=${api_key}&part=snippet&playlistId=${pid}&maxR
 const tit_len = 30;
 const desc_len = 180;
 
-//이벤트 위임(event delegation)
-//동적으로 생성되는 요소에 이벤트 연결이 불가, 이벤트 연결시점에는 해당 돔이 생성되지 않았기 때문
-//항상 있는 body요소에다가 이벤트를 위임을해서 추후 동적 dom이 생기면 이벤트를 전달받도록 처리
-
 window.addEventListener('click', (e) => {
-	//e.currentTarget : 이벤트가 연결되어 있는 선택자를 반환
-	//e.target : 실제화면상에서 이벤트가 발생한 요소를 반환
-	if (e.target.nodeName === 'IMG') {
-		console.log('You clicked Pic');
-	}
+	if (e.target.nodeName === 'IMG') createPop(e.target.getAttribute('data-vid'));
+	if (e.target.className === 'close') removePop();
 });
-
 fetch(resultURL)
 	.then((data) => data.json())
 	.then((json) => {
@@ -45,7 +37,7 @@ fetch(resultURL)
 						<span>${date}</span>
 					</div>
 					<div class='pic'>
-						<img src='${data.snippet.thumbnails.standard.url}' />
+						<img src='${data.snippet.thumbnails.standard.url}' data-vid=${data.snippet.resourceId.videoId} />
 					</div>					
 				</article>
 			`;
@@ -53,3 +45,22 @@ fetch(resultURL)
 
 		frame.innerHTML = tags;
 	});
+
+function createPop(id) {
+	console.log(id);
+	const aside = document.createElement('aside');
+	aside.innerHTML = `
+		<div class='con'>
+		<iframe src='https://www.youtube.com/embed/${id}'></iframe>
+		</div>		
+		<span class='close'>close</span>
+	`;
+	document.body.append(aside);
+	document.body.style.overflow = 'hidden';
+}
+
+function removePop() {
+	const pop = document.querySelector('aside');
+	pop.remove();
+	document.body.style.overflow = 'auto';
+}
